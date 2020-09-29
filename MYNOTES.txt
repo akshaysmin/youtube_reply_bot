@@ -1,0 +1,69 @@
+Requirements:
+Selenium, firefox webdriver
+
+input : link to a single video on youtube
+looks for : comments with given coditions
+output : comments corresponding replies
+
+BOT About:
+	name : The 'youtubot' bot
+	email id : 
+	password : 
+
+temp_notes:
+from selenium import webdriver
+driver_path = r"D:\ProgramData\Python add-ons\geckodriver.exe"
+driver = webdriver.Firefox(executable_path=driver_path)
+driver.get('https://www.youtube.com/watch?v=zspAWmeHpRo')
+csection = driver.find_element_by_id('comments')
+comments = csection.find_element_by_id('contents').find_elements_by_tag_name('ytd-comment-thread-renderer')
+
+comment = comments[0].find_element_by_id('comment')
+cauth_name = comment.find_element_by_id('author-text').text
+ctext = comment.find_element_by_id('expander').text
+cchannel = comment.find_element_by_id('author-thumbnail').find_element_by_tag_name('a').get_attribute('href')
+
+reply = comments[0].find_element_by_id('replies')
+reply.find_element_by_tag_name('ytd-button-renderer').click()
+reply.find_element_by_id('more-replies').click()
+#reply.find_element_by_id('less-replies').click()
+lreplies = reply.find_element_by_id('loaded-replies')
+onereply=lreplies[0]
+rauth_name = onereply.find_element_by_id('author-text').text
+rtext = onereply.find_element_by_id('expander').text
+rchannel = onereply.find_element_by_id('author-thumbnail').find_element_by_tag_name('a').get_attribute('href')
+
+#to reply:
+toolbar = comment.find_element_by_id('toolbar')
+like_button = toolbar.find_element_by_id('like-button')
+like_count = toolbar.find_element_by_id('vote-count-middle').text
+creator_heart = toolbar.find_element_by_id('creator-heart')
+reply_button = toolbar.find_element_by_id('reply-button-end')
+reply_button.click()
+commentbox = comment.find_element_by_id('commentbox')
+commentbox.find_element_by_id('contenteditable-root').send_keys('lol\n')
+submit_button = commentbox.find_element_by_id('submit-button')
+submit_button.click()
+
+#google login:
+https://accounts.google.com/o/oauth2/auth/identifier?client_id=717762328687-iludtf96g1hinl76e4lc1b9a82g457nn.apps.googleusercontent.com&scope=profile%20email&redirect_uri=https%3A%2F%2Fstackauth.com%2Fauth%2Foauth2%2Fgoogle&state=%7B%22sid%22%3A1%2C%22st%22%3A%2259%3A3%3Abbc%2C16%3A015a805f73e0a7e4%2C10%3A1599926302%2C16%3A6102b0040a8ebe67%2Ca560068ccb432e1ea0f412b0877138fd553ca4f07d067e7d73d707f8f88f3c2a%22%2C%22cdl%22%3Anull%2C%22cid%22%3A%22717762328687-iludtf96g1hinl76e4lc1b9a82g457nn.apps.googleusercontent.com%22%2C%22k%22%3A%22Google%22%2C%22ses%22%3A%228a9bb74c39dc415da6792ca476ca754d%22%7D&response_type=code&flowName=GeneralOAuthFlow
+email = 'nanoisnotarobotfightme@gmail.com'
+driver.find_element_by_id('masthead').find_element_by_id('container').find_element_by_id('end').find_element_by_tag_name('ytd-button-renderer').click()
+driver.find_element_by_tag_name('form').find_element_by_tag_name('input').send_keys(email+'\n')
+password = input(f'email : {email}\npassword : ')
+driver.find_element_by_tag_name('form').find_element_by_id('password').click()
+driver.find_element_by_tag_name('form').find_element_by_id('password').find_element_by_tag_name('input').send_keys(password+'\n')
+
+#scroll down:
+scrollable = driver.find_element_by_class_name("_147Si")
+driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight",scrollable)
+
+driver.execute_script("window.scrollTo(0, window.scrollMaxY);") #works
+
+#find link to latest video of given channel
+channel_link = "https://www.youtube.com/c/LostPause/videos"
+#"https://www.youtube.com/user/LostPause"
+#"https://www.youtube.com/c/LostPause/videos"
+driver.get(channel_link)
+videos_list = driver.find_element_by_id("page-manager").find_elements_by_tag_name("ytd-two-column-browse-results-renderer")[1].find_element_by_id("contents").find_element_by_id("contents").find_elements_by_tag_name("ytd-grid-video-renderer")
+latest_video = videos_list[0].find_element_by_id("video-title").get_attribute('href')
